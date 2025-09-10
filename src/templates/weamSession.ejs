@@ -1,0 +1,69 @@
+const { getIronSession } = require('iron-session');
+
+// Weam session middleware for <%= appName %>
+const weamSessionMiddleware = (options = {}) => {
+  return async (req, res, next) => {
+    try {
+      const session = await getIronSession(req, res, {
+        password: process.env.WEAM_COOKIE_PASSWORD || 'your-secret-password-here',
+        cookieName: process.env.WEAM_COOKIE_NAME || 'weam',
+        cookieOptions: {
+          secure: process.env.NODE_ENV === 'production',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7 // 7 days
+        }
+      });
+
+      // Attach session to request
+      req.session = session;
+      
+      // Add user info if available
+      if (session.user) {
+        req.user = session.user;
+        req.companyId = session.user.companyId;
+      }
+
+      next();
+    } catch (error) {
+      console.error('Weam session error:', error);
+      req.session = {};
+      req.user = null;
+      req.companyId = null;
+      next();
+    }
+  };
+};
+
+// Auth middleware to require Weam authentication
+const requireWeamAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ 
+      error: 'Unauthorized', 
+      message: 'Please log in to Weam.ai to access this resource' 
+    });
+  }
+  next();
+};
+
+// Get current user endpoint
+const getCurrentUser = (req, res) => {
+  if (req.user) {
+    res.json({
+      user: req.user,
+      companyId: req.companyId,
+      authenticated: true
+    });
+  } else {
+    res.status(401).json({
+      authenticated: false,
+      message: 'Not authenticated with Weam'
+    });
+  }
+};
+
+module.exports = {
+  weamSessionMiddleware,
+  requireWeamAuth,
+  getCurrentUser
+};

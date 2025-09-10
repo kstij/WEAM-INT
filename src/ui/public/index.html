@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI App Integrator - Weam.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div x-data="appIntegrator()" class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h1 class="text-xl font-bold text-gray-900">AI App Integrator</h1>
+                            <p class="text-sm text-gray-500">Integrate your apps with Weam.ai</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="https://app.weam.ai" class="text-blue-600 hover:text-blue-700 font-medium">
+                            <i class="fas fa-external-link-alt mr-1"></i>
+                            Go to Weam
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Step 1: Upload App -->
+            <div x-show="currentStep === 1" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                        <i class="fas fa-upload mr-2 text-blue-600"></i>
+                        Step 1: Upload Your App
+                    </h2>
+                    <p class="text-gray-600 mb-6">
+                        Upload your vibecoded app (as a ZIP file) to get started with Weam integration.
+                    </p>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+                         @dragover.prevent
+                         @drop.prevent="handleDrop($event)"
+                         @click="$refs.fileInput.click()">
+                        <input type="file" x-ref="fileInput" @change="handleFileSelect($event)" 
+                               accept=".zip" class="hidden">
+                        
+                        <div x-show="!uploadedFile">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-lg font-medium text-gray-900 mb-2">Drop your app here</p>
+                            <p class="text-gray-500">or click to browse</p>
+                            <p class="text-sm text-gray-400 mt-2">Supports ZIP files up to 100MB</p>
+                        </div>
+                        
+                        <div x-show="uploadedFile" class="text-green-600">
+                            <i class="fas fa-check-circle text-4xl mb-4"></i>
+                            <p class="text-lg font-medium">File uploaded successfully!</p>
+                            <p class="text-sm" x-text="uploadedFile.name"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button @click="scanApp()" 
+                                :disabled="!uploadedFile || scanning"
+                                :class="uploadedFile && !scanning ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'"
+                                class="px-6 py-2 text-white font-medium rounded-md transition-colors">
+                            <span x-show="!scanning">Scan App</span>
+                            <span x-show="scanning">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Scanning...
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Configure Integration -->
+            <div x-show="currentStep === 2" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                        <i class="fas fa-cog mr-2 text-blue-600"></i>
+                        Step 2: Configure Integration
+                    </h2>
+                    
+                    <!-- App Analysis Results -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-blue-900 mb-2">App Analysis Results</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium">App Type:</span>
+                                <span x-text="appInfo.type" class="ml-2 text-blue-700"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Framework:</span>
+                                <span x-text="appInfo.framework" class="ml-2 text-blue-700"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">API Routes:</span>
+                                <span x-text="appInfo.apiRoutes.length" class="ml-2 text-blue-700"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Database Models:</span>
+                                <span x-text="appInfo.models.length" class="ml-2 text-blue-700"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuration Form -->
+                    <form @submit.prevent="generateIntegration()" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    App Name in Weam
+                                </label>
+                                <input type="text" x-model="userPreferences.appName" 
+                                       :value="appInfo.name"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Category
+                                </label>
+                                <select x-model="userPreferences.category" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="Productivity">Productivity</option>
+                                    <option value="Creative">Creative</option>
+                                    <option value="Analytics">Analytics</option>
+                                    <option value="Communication">Communication</option>
+                                    <option value="Development">Development</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Description
+                            </label>
+                            <textarea x-model="userPreferences.description" 
+                                      :value="appInfo.description"
+                                      rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        
+                        <!-- Integration Options -->
+                        <div class="space-y-4">
+                            <h3 class="font-semibold text-gray-900">Integration Options</h3>
+                            
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="userPreferences.addAuth" 
+                                           :checked="!appInfo.hasAuth"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Add Weam authentication</span>
+                                </label>
+                                
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="userPreferences.addDatabase" 
+                                           checked
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Integrate with Weam database</span>
+                                </label>
+                                
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="userPreferences.addBranding" 
+                                           checked
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Apply Weam branding</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button type="button" @click="currentStep = 1" 
+                                    class="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50">
+                                Back
+                            </button>
+                            <button type="submit" 
+                                    :disabled="generating"
+                                    :class="!generating ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'"
+                                    class="px-6 py-2 text-white font-medium rounded-md transition-colors">
+                                <span x-show="!generating">Generate Integration</span>
+                                <span x-show="generating">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    Generating...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 3: Results -->
+            <div x-show="currentStep === 3" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                        <i class="fas fa-check-circle mr-2 text-green-600"></i>
+                        Step 3: Integration Complete!
+                    </h2>
+                    
+                    <!-- Test Results -->
+                    <div class="mb-6 p-4 bg-green-50 rounded-lg">
+                        <h3 class="font-semibold text-green-900 mb-2">Test Results</h3>
+                        <div class="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium">Total Tests:</span>
+                                <span x-text="testResults.total" class="ml-2 text-green-700"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Passed:</span>
+                                <span x-text="testResults.passed" class="ml-2 text-green-700"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Failed:</span>
+                                <span x-text="testResults.failed" class="ml-2 text-red-700"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Generated Files -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-3">Generated Files</h3>
+                        <div class="space-y-2">
+                            <template x-for="file in integrationFiles" :key="file.path">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-code text-blue-600 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900" x-text="file.description"></p>
+                                            <p class="text-sm text-gray-500" x-text="file.path"></p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full" 
+                                          x-text="file.type"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <!-- Next Steps -->
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-blue-900 mb-2">Next Steps</h3>
+                        <ol class="list-decimal list-inside space-y-1 text-sm text-blue-800">
+                            <li>Review the generated files in the <code>weam-integration</code> folder</li>
+                            <li>Copy the files to your app following the integration guide</li>
+                            <li>Test your app locally with the new integration</li>
+                            <li>Deploy to Weam Supersolutions</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between">
+                        <button @click="currentStep = 2" 
+                                class="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50">
+                            Back
+                        </button>
+                        <button @click="downloadIntegration()" 
+                                class="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Integration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function appIntegrator() {
+            return {
+                currentStep: 1,
+                uploadedFile: null,
+                appInfo: null,
+                userPreferences: {
+                    appName: '',
+                    description: '',
+                    category: 'Productivity',
+                    addAuth: true,
+                    addDatabase: true,
+                    addBranding: true
+                },
+                integrationFiles: [],
+                testResults: {},
+                scanning: false,
+                generating: false,
+
+                handleFileSelect(event) {
+                    const file = event.target.files[0];
+                    if (file && file.type === 'application/zip') {
+                        this.uploadedFile = file;
+                    } else {
+                        alert('Please select a ZIP file');
+                    }
+                },
+
+                handleDrop(event) {
+                    const file = event.dataTransfer.files[0];
+                    if (file && file.type === 'application/zip') {
+                        this.uploadedFile = file;
+                    } else {
+                        alert('Please drop a ZIP file');
+                    }
+                },
+
+                async scanApp() {
+                    if (!this.uploadedFile) return;
+                    
+                    this.scanning = true;
+                    
+                    try {
+                        const formData = new FormData();
+                        formData.append('app', this.uploadedFile);
+                        
+                        const response = await fetch('/api/scan', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.appInfo = result.appInfo;
+                            this.userPreferences.appName = result.appInfo.name;
+                            this.userPreferences.description = result.appInfo.description;
+                            this.currentStep = 2;
+                        } else {
+                            alert('Error scanning app: ' + result.error);
+                        }
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    } finally {
+                        this.scanning = false;
+                    }
+                },
+
+                async generateIntegration() {
+                    this.generating = true;
+                    
+                    try {
+                        const response = await fetch('/api/integrate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                appInfo: this.appInfo,
+                                userPreferences: this.userPreferences
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.integrationFiles = result.integrationFiles;
+                            this.testResults = result.testResults;
+                            this.currentStep = 3;
+                        } else {
+                            alert('Error generating integration: ' + result.error);
+                        }
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    } finally {
+                        this.generating = false;
+                    }
+                },
+
+                downloadIntegration() {
+                    // This would trigger a download of the integration files
+                    alert('Download functionality would be implemented here');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# Weam Integration Configuration for <%= appName %>
+# Copy these settings to your app's .env file
+
+# Weam Authentication
+WEAM_COOKIE_NAME=weam
+WEAM_COOKIE_PASSWORD=your-secret-password-here
+WEAM_BASE_URL=https://app.weam.ai
+
+# App Configuration
+PORT=<%= port %>
+NODE_ENV=development
+APP_BASE_URL=http://localhost:<%= port %>
+
+# Database Configuration
+<% if (hasDatabase) { %>
+MONGODB_URI=mongodb://localhost:27017/<%= appName.toLowerCase() %>
+<% } %>
+
+# CORS Configuration
+CLIENT_ORIGIN=https://app.weam.ai
+ALLOWED_ORIGINS=https://app.weam.ai,http://localhost:3000
+
+# Integration Settings
+INTEGRATION_MODE=weam
+APP_NAME=<%= appName %>
+APP_CATEGORY=<%= category %>
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE=./logs/<%= appName.toLowerCase() %>.log
+
+# Security
+SESSION_SECRET=your-session-secret-here
+JWT_SECRET=your-jwt-secret-here
+
+# File Upload (if applicable)
+MAX_FILE_SIZE=10MB
+UPLOAD_DIR=./uploads
+
+# API Keys (add your specific API keys here)
+# OPENAI_API_KEY=your-openai-key
+# ANTHROPIC_API_KEY=your-anthropic-key
+# GEMINI_API_KEY=your-gemini-key

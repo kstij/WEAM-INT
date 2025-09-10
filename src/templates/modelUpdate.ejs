@@ -1,0 +1,58 @@
+const mongoose = require('mongoose');
+const { weamUserFields, weamTimestamps } = require('../lib/db');
+
+// Updated <%= modelName %> model with Weam integration
+const <%= modelName %>Schema = new mongoose.Schema({
+  // Your existing fields here
+  // ... (preserve existing schema fields)
+  
+  // Weam integration fields
+  ...weamUserFields,
+  ...weamTimestamps
+}, {
+  timestamps: true,
+  collection: '<%= modelName.toLowerCase() %>s'
+});
+
+// Indexes for better performance
+<%= modelName %>Schema.index({ 'user.id': 1 });
+<%= modelName %>Schema.index({ 'companyId': 1 });
+<%= modelName %>Schema.index({ 'createdAt': -1 });
+
+// Middleware to update timestamps
+<%= modelName %>Schema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+// Static methods for Weam integration
+<%= modelName %>Schema.statics.findByUser = function(userId) {
+  return this.find({ 'user.id': userId }).sort({ createdAt: -1 });
+};
+
+<%= modelName %>Schema.statics.findByCompany = function(companyId) {
+  return this.find({ companyId }).sort({ createdAt: -1 });
+};
+
+<%= modelName %>Schema.statics.findPublic = function() {
+  return this.find({ isPublic: true }).sort({ createdAt: -1 });
+};
+
+// Instance methods
+<%= modelName %>Schema.methods.isOwner = function(userId) {
+  return this.user.id === userId;
+};
+
+<%= modelName %>Schema.methods.makePublic = function() {
+  this.isPublic = true;
+  return this.save();
+};
+
+<%= modelName %>Schema.methods.makePrivate = function() {
+  this.isPublic = false;
+  return this.save();
+};
+
+const <%= modelName %> = mongoose.model('<%= modelName %>', <%= modelName %>Schema);
+
+module.exports = <%= modelName %>;

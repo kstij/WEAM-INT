@@ -1,0 +1,57 @@
+{
+  "name": "weamint",
+  "version": "1.0.0",
+  "description": "AI-powered CLI tool to automatically integrate vibecoded apps into Weam.ai",
+  "main": "src/index.js",
+  "bin": {
+    "weamint": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "ui": "node src/index.js ui",
+    "test": "jest",
+    "build": "npm run build:ui",
+    "build:ui": "cd src/ui && npm run build"
+  },
+  "keywords": [
+    "ai",
+    "integration",
+    "weam",
+    "vibecoded",
+    "automation",
+    "cli",
+    "linux"
+  ],
+  "author": "Weam.ai",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.6.0",
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^11.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "eslint": "^8.54.0",
+    "express": "^4.18.2",
+    "figlet": "^1.6.0",
+    "fs-extra": "^11.1.1",
+    "glob": "^10.3.10",
+    "inquirer": "^8.2.6",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.20.1",
+    "ora": "^5.4.1",
+    "prettier": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
