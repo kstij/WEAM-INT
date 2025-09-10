@@ -1,15 +1,15 @@
-# WEAM-INT (AI App Integrator) 🚀
+# WEAM-INT (AI App Integrator) 
 
 Integrate any vibecoded app with Weam.ai using a single, menu-driven CLI. No web UI, no fluff — just scan, integrate, and ship.
 
-## ✨ What it does
+##  What it does
 
 - **Smart scanning**: Detects framework, auth, DB, API routes
 - **Weam integration codegen**: session middleware, auth guards, proxies, branding
 - **AI-powered edits**: Uses OpenAI to directly modify files (with backups)
 - **Consistent data model**: Company/user fields and collection prefixes
 
-## 🔧 Install & Run (CLI only)
+##  Install & Run (CLI only)
 
 Option A: Run via npx
 ```bash
@@ -26,7 +26,7 @@ npm start
 
 You’ll see a menu with options like Scan App, Integrate with AI, Traditional Integration, and Setup.
 
-## ⚙️ Minimal .env
+## ⚙ Minimal .env
 
 Create a `.env` (or copy `env.example`) with:
 ```bash
@@ -45,7 +45,7 @@ COLLECTION_PREFIX=solution_sample
 CLIENT_ORIGIN=https://app.weam.ai
 ```
 
-## ▶️ Typical workflow
+##  Typical workflow
 
 1) Scan your app
 ```bash
@@ -63,7 +63,7 @@ npx weamint
 - Backups are created next to modified files: `<filename>.bak`
 - Diff your repo and commit what you like
 
-## 📦 What gets added to your app
+##  What gets added to your app
 
 - `weamSession` middleware (iron-session) and `requireWeamAuth`
 - CORS with credentials where needed
@@ -72,23 +72,23 @@ npx weamint
 - Mongo models updated to include `user` and `companyId`
 - Optional collection naming via `COLLECTION_PREFIX`
 
-## 🧩 Supported targets
+##  Supported targets
 
 - Next.js (app or pages router)
 - Express.js + React
 
-## 🛠 Scripts (repo dev only)
+##  Scripts (repo dev only)
 
 - `npm start` — launch CLI menu
 - `npm run build` — build production CLI
 
-## 🔒 Security notes
+##  Security notes
 
 - Uses `iron-session` with your `WEAM_COOKIE_PASSWORD`
 - Keeps auth state via `weam` cookie
 - Adds `withCredentials: true` where needed for API calls
 
-## 🗺 Roadmap (short)
+##  Roadmap (short)
 
 - Dry-run, rollback, and unified diff preview
 - More framework recipes
