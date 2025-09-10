@@ -1,6 +1,6 @@
 # WEAM-INT (AI App Integrator) 
 
-Integrate any vibecoded app with Weam.ai using a single, menu-driven CLI. No web UI, no fluff — just scan, integrate, and ship.
+Integrate any vibecoded app with Weam.ai using a single, menu-driven CLI. No web UI, no fluff  just scan, integrate, and ship.
 
 ##  What it does
 
@@ -65,7 +65,7 @@ npx weamint
 
 ##  What gets added to your app
 
-- `weamSession` middleware (iron-session) and `requireWeamAuth`
+- `weamSession` middleware (iron session) and `requireWeamAuth`
 - CORS with credentials where needed
 - Next.js proxy route for supersolution pages (if applicable)
 - Weam branding hooks (logo, Back to App)
@@ -90,7 +90,7 @@ npx weamint
 
 ##  Roadmap (short)
 
-- Dry-run, rollback, and unified diff preview
+- Dry run, rollback, and unified diff preview
 - More framework recipes
 
 ---
