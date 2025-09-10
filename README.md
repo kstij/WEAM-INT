@@ -1,197 +1,98 @@
-# AI App Integrator 🚀
+# WEAM-INT (AI App Integrator) 🚀
 
-**The easiest way to integrate any vibecoded app into Weam.ai**
+Integrate any vibecoded app with Weam.ai using a single, menu-driven CLI. No web UI, no fluff — just scan, integrate, and ship.
 
-Transform your AI applications into seamless Weam Supersolutions with just a few clicks. The AI App Integrator automatically handles authentication, database integration, branding, and proxy setup.
+## ✨ What it does
 
-## ✨ Features
+- **Smart scanning**: Detects framework, auth, DB, API routes
+- **Weam integration codegen**: session middleware, auth guards, proxies, branding
+- **AI-powered edits**: Uses OpenAI to directly modify files (with backups)
+- **Consistent data model**: Company/user fields and collection prefixes
 
-- **🔍 Smart App Detection**: Automatically analyzes your app structure and framework
-- **⚡ One-Click Integration**: Generates all necessary Weam integration code
-- **🧪 Built-in Testing**: Validates integration before deployment
-- **🎨 Automatic Branding**: Applies Weam logo, navigation, and styling
-- **🔐 Authentication Setup**: Integrates iron-session for seamless login
-- **🗄️ Database Integration**: Connects to Weam's MongoDB with user isolation
-- **🌐 Web UI**: Beautiful, intuitive interface for non-technical users
-- **📱 CLI Tool**: Command-line interface for developers
+## 🔧 Install & Run (CLI only)
 
-## 🚀 Quick Start
-
-### Option 1: Web Interface (Recommended for Non-Developers)
-
-1. **Start the Web UI**:
-   ```bash
-   npm run ui
-   ```
-
-2. **Open your browser** to `http://localhost:3005`
-
-3. **Upload your app** as a ZIP file
-
-4. **Configure integration** settings
-
-5. **Download** the generated integration files
-
-### Option 2: Command Line Interface
-
-1. **Install globally**:
-   ```bash
-   npm install -g ai-app-integrator
-   ```
-
-2. **Integrate your app**:
-   ```bash
-   ai-app-integrator integrate /path/to/your/app
-   ```
-
-3. **Follow the prompts** to configure your integration
-
-## 📋 Supported App Types
-
-- **Next.js** applications
-- **React** applications  
-- **Express.js** servers
-- **Vue.js** applications
-- **Angular** applications
-- **Svelte** applications
-
-## 🔧 What Gets Generated
-
-### Authentication Integration
-- Weam session middleware
-- Auth guards for API routes
-- User context and permissions
-
-### Database Integration
-- MongoDB connection setup
-- User/company association fields
-- Data isolation and security
-
-### Branding Integration
-- Weam logo components
-- Navigation with "Back to App" button
-- Consistent styling and colors
-
-### Proxy Integration
-- Next.js API proxy routes
-- Weam page components
-- Environment configuration
-
-## 📁 Project Structure
-
-```
-AI-App-Integrator/
-├── src/
-│   ├── scanner/          # App analysis and detection
-│   ├── generator/        # Code generation engine
-│   ├── templates/        # EJS templates for generated code
-│   ├── ui/              # Web interface
-│   └── utils/           # Testing and utilities
-├── public/              # Static assets
-└── tests/               # Test files
-```
-
-## 🛠️ Development
-
-### Prerequisites
-- Node.js 16+
-- npm or yarn
-
-### Setup
+Option A: Run via npx
 ```bash
-# Clone the repository
-git clone <repository-url>
+npx weamint
+```
+
+Option B: Local clone
+```bash
+git clone <repo-url>
 cd AI-App-Integrator
-
-# Install dependencies
 npm install
-
-# Start development server
-npm run dev
+npm start
 ```
 
-### Available Scripts
-- `npm start` - Start the CLI tool
-- `npm run dev` - Start development server with hot reload
-- `npm run ui` - Start the web interface
-- `npm test` - Run tests
-- `npm run build` - Build for production
+You’ll see a menu with options like Scan App, Integrate with AI, Traditional Integration, and Setup.
 
-## 🧪 Testing
+## ⚙️ Minimal .env
 
-The integrator includes comprehensive testing:
-
-- **File Generation Tests**: Verifies all files are created correctly
-- **Syntax Validation**: Checks JavaScript/TypeScript syntax
-- **Authentication Tests**: Validates session middleware setup
-- **Database Tests**: Confirms database integration
-- **Proxy Tests**: Verifies API proxy configuration
-
-## 📖 Usage Examples
-
-### CLI Integration
+Create a `.env` (or copy `env.example`) with:
 ```bash
-# Scan an app without integrating
-ai-app-integrator scan /path/to/app
+OPENAI_API_KEY=your-openai-api-key
 
-# Full integration with prompts
-ai-app-integrator integrate /path/to/app
+# Used in generated auth middleware and Next.js proxies
+WEAM_COOKIE_NAME=weam
+WEAM_COOKIE_PASSWORD=change-me
+WEAM_BASE_URL=https://app.weam.ai
 
-# Start web UI
-ai-app-integrator ui
+# Used by generated Mongo/Mongoose utilities (optional for CLI itself)
+MONGODB_URI=mongodb://localhost:27017/weam-integrations
+COLLECTION_PREFIX=solution_sample
+
+# If your generated server needs CORS origin
+CLIENT_ORIGIN=https://app.weam.ai
 ```
 
-### Programmatic Usage
-```javascript
-const AppScanner = require('./src/scanner/AppScanner');
-const CodeGenerator = require('./src/generator/CodeGenerator');
+## ▶️ Typical workflow
 
-// Scan an app
-const scanner = new AppScanner();
-const appInfo = await scanner.scanApp('/path/to/app');
-
-// Generate integration
-const generator = new CodeGenerator();
-const files = await generator.generateIntegration(appInfo, preferences);
+1) Scan your app
+```bash
+npx weamint
+# choose "Scan app" and point to your app folder
 ```
 
-## 🔒 Security
+2) Integrate (AI mode)
+```bash
+npx weamint
+# choose "Integrate with AI" and follow prompts
+```
 
-- All generated code follows Weam security standards
-- User data isolation is enforced
-- Authentication is handled via iron-session
-- CORS is properly configured
-- Environment variables are secured
+3) Review changes
+- Backups are created next to modified files: `<filename>.bak`
+- Diff your repo and commit what you like
 
-## 🤝 Contributing
+## 📦 What gets added to your app
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+- `weamSession` middleware (iron-session) and `requireWeamAuth`
+- CORS with credentials where needed
+- Next.js proxy route for supersolution pages (if applicable)
+- Weam branding hooks (logo, Back to App)
+- Mongo models updated to include `user` and `companyId`
+- Optional collection naming via `COLLECTION_PREFIX`
 
-## 📄 License
+## 🧩 Supported targets
 
-MIT License - see LICENSE file for details
+- Next.js (app or pages router)
+- Express.js + React
 
-## 🆘 Support
+## 🛠 Scripts (repo dev only)
 
-- **Documentation**: [docs.weam.ai/integrations](https://docs.weam.ai/integrations)
-- **Issues**: [GitHub Issues](https://github.com/weam-ai/ai-app-integrator/issues)
-- **Community**: [Weam Discord](https://discord.gg/weam)
+- `npm start` — launch CLI menu
+- `npm run build` — build production CLI
 
-## 🎯 Roadmap
+## 🔒 Security notes
 
-- [ ] Support for more frameworks (SvelteKit, Nuxt.js)
-- [ ] Advanced customization options
-- [ ] Integration marketplace
-- [ ] Automated deployment
-- [ ] Performance optimization
-- [ ] Multi-language support
+- Uses `iron-session` with your `WEAM_COOKIE_PASSWORD`
+- Keeps auth state via `weam` cookie
+- Adds `withCredentials: true` where needed for API calls
+
+## 🗺 Roadmap (short)
+
+- Dry-run, rollback, and unified diff preview
+- More framework recipes
 
 ---
 
-**Made with ❤️ by the Weam.ai team**
-
-*Transform your AI apps into Weam Supersolutions in minutes, not hours!*
+Built for integrating vibecoded apps into Weam — fast.
