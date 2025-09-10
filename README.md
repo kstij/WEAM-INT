@@ -96,3 +96,25 @@ npx weamint
 ---
 
 Built for integrating vibecoded apps into Weam — fast.
+
+## 🧷 Dry-run, rollback, and diff preview
+
+Until a native `--dry-run` flag lands, here’s the safe workflow:
+
+- Preview/diff: Run the integrator in a git-tracked repo, then inspect changes
+```bash
+git add -A && git commit -m "chore: baseline before integration"
+npx weamint  # choose Integrate with AI
+git --no-pager diff
+```
+
+- Rollback: Restore from the automatic backups created as `<filename>.bak`, or reset via git
+```bash
+# Restore a single file from backup
+mv path/file.ext.bak path/file.ext
+
+# Or revert everything via git
+git reset --hard HEAD
+```
+
+- Manual dry-run: Clone your app to a temp folder and run the integrator there to review changes before applying to the real repo.
