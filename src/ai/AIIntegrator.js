@@ -43,7 +43,7 @@ class AIIntegrator {
 - lib/db.js - Database connection
 - components/WeamLogo.jsx - Logo component
 - components/WeamNavigation.jsx - Navigation
-- styles/weam.css - Weam styling
+- styles/weam.css - Weam styling.
 `;
 
     this.integrationPrompts = {
@@ -228,12 +228,44 @@ Be specific about what code to add, where to add it, and what to modify.
     return this.parseAIResponse(response.choices[0].message.content);
   }
 
+  // Helper to sanitize file paths and prevent directory traversal and absolute path writes
+  sanitizeFilePath(appPath, filePath) {
+    // Remove any null bytes
+    if (filePath.includes('\0')) {
+      throw new Error('Invalid file path: null byte detected');
+    }
+    // Prevent absolute paths
+    if (path.isAbsolute(filePath)) {
+      throw new Error('Invalid file path: absolute paths are not allowed');
+    }
+    // Normalize and resolve
+    const resolvedPath = path.resolve(appPath, filePath);
+    // Ensure the resolved path is within the appPath directory
+    const relative = path.relative(appPath, resolvedPath);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      throw new Error('Invalid file path: directory traversal detected');
+    }
+    return resolvedPath;
+  }
+
   async applyAIChanges(appPath, recommendations) {
     const changes = [];
     
     for (const recommendation of recommendations) {
-      const filePath = path.join(appPath, recommendation.filePath);
-      
+      let filePath;
+      try {
+        // Sanitize the file path before using it
+        filePath = this.sanitizeFilePath(appPath, recommendation.filePath);
+      } catch (err) {
+        changes.push({
+          file: recommendation.filePath,
+          action: recommendation.action,
+          success: false,
+          error: err.message
+        });
+        console.log(chalk.red(`❌ Failed: ${recommendation.filePath} - ${err.message}`));
+        continue;
+      }
       try {
         // Read current file
         let currentContent = '';
