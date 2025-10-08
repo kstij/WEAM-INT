@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
-app.post('/api/scan', upload.single('app'), async (req, res) => {
+app.post('/api/scan', upload.single('app'), async (req, res, next) => {
   let extractedPath = null;
   
   try {
@@ -145,6 +145,31 @@ app.get('/api/templates', async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+// Error handler for Multer 2.x compatibility
+app.use(function (err, req, res, next) {
+  if (err && err.storageErrors && Array.isArray(err.storageErrors) && err.storageErrors.length) {
+    // Multer 2.x may return multiple storage errors
+    res.status(400).json({
+      success: false,
+      error: err.storageErrors.map(e => e.message).join('; ')
+    });
+  } else if (err && err.code === 'LIMIT_FILE_SIZE') {
+    // Multer still uses LIMIT_FILE_SIZE for file size errors
+    res.status(400).json({
+      success: false,
+      error: 'File too large'
+    });
+  } else if (err && err.name === 'MulterError') {
+    // General Multer error
+    res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  } else {
+    next(err);
   }
 });
 
