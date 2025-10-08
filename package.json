@@ -27,7 +27,6 @@
   "license": "MIT",
   "dependencies": {
     "adm-zip": "^0.5.16",
-    "axios": "^1.6.0",
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",
@@ -44,7 +43,8 @@
     "multer": "^1.4.5-lts.1",
     "openai": "^4.20.1",
     "ora": "^5.4.1",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.0",
+    "axios": "^1.8.2"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
