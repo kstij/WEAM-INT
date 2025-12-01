@@ -41,10 +41,10 @@
     "fs-extra": "^11.1.1",
     "glob": "^10.3.10",
     "inquirer": "^8.2.6",
-    "multer": "^1.4.5-lts.1",
     "openai": "^4.20.1",
     "ora": "^5.4.1",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.0",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
